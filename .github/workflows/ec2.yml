@@ -33,6 +33,6 @@ jobs:
                                               --security-group-ids sg-0ca1dd31a594e6c59 \
                                               --subnet-id subnet-0f1906c1a65249ec1 \
                                               --user-data file://user-data.sh \
-                                              --query 'Instances[0].PublicIpAddress' \
+                                              --query 'Reservations[*].Instances[*].PublicIpAddress' \
                                               --output text)
           echo "Launched EC2 instance with IP address: $INSTANCE_IP"
