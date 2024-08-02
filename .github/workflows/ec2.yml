@@ -1,0 +1,38 @@
+on:
+  # push
+  issues
+
+jobs:
+  cluster:
+    name: Deploy EC2 AWS instance with docker container
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: us-east-1
+    runs-on: ubuntu-latest
+    outputs:
+      # ec2-instance-id: ${{steps.ip_address.outputs.EC2_IDS}}
+      ec2-instance-ip-address: ${{steps.ip_address.outputs.INSTANCE_IP}}
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-region: ${{env.AWS_REGION}}
+        
+    - name: Launch EC2 instance
+      id: start-ec2
+      run: |
+          #!/bin/bash
+          INSTANCE_IP=$(aws ec2 run-instances --image-id ami-01b799c439fd5516a \
+                                              --count 1 \
+                                              --instance-type t2.micro \
+                                              --key-name EmrWorkshopKeyPair \
+                                              --security-group-ids sg-0ca1dd31a594e6c59 \
+                                              --subnet-id subnet-0f1906c1a65249ec1 \
+                                              --user-data file://user-data.sh \
+                                              --query 'Instances[0].PublicIpAddress' \
+                                              --output text)
+          echo "Launched EC2 instance with IP address: $INSTANCE_IP"
