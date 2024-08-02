@@ -1,6 +1,6 @@
 on:
-  # push
-  issues
+  push
+  # issues
 
 jobs:
   cluster:
